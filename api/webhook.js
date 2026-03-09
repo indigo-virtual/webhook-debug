@@ -7,9 +7,13 @@ export default async function handler(req, res) {
   const signature = req.headers["x-vamsys-signature"];
 
   console.log("===== WEBHOOK RECEIVED =====");
-  console.log("Headers:", req.headers);
-  console.log("Body:", JSON.stringify(payload, null, 2));
-  console.log("Event:", payload?.event);
+  console.log(JSON.stringify(payload, null, 2));
+
+  /*
+  -----------------------------
+  SIGNATURE VERIFICATION
+  -----------------------------
+  */
 
   if (secret && signature) {
     const expected = crypto
@@ -17,24 +21,43 @@ export default async function handler(req, res) {
       .update(JSON.stringify(payload))
       .digest("hex");
 
-    if (signature === expected) {
-      console.log("Signature valid");
-    } else {
-      console.log("Signature mismatch");
+    if (signature !== expected) {
+      console.log("Invalid signature");
+      return res.status(401).json({ error: "Invalid signature" });
     }
-  }
 
-  console.log("============================");
+    console.log("Signature valid");
+  }
 
   /*
   -----------------------------
-  SAVE PAYLOAD TO GITHUB
+  RESPOND IMMEDIATELY
   -----------------------------
   */
 
+  res.status(200).json({ received: true });
+
+  /*
+  -----------------------------
+  ASYNC PROCESSING
+  -----------------------------
+  */
+
+  processWebhook(payload).catch((err) => {
+    console.error("Webhook processing failed:", err);
+  });
+}
+
+/*
+----------------------------------
+ASYNC PAYLOAD STORAGE
+----------------------------------
+*/
+
+async function processWebhook(payload) {
   const id = payload.event_id || Date.now();
 
-  // 2-line conflict fix: add timestamp to filename
+  // conflict-safe filename
   const filename = `payloads/${id}-${Date.now()}.json`;
 
   const content = Buffer.from(JSON.stringify(payload, null, 2)).toString(
@@ -43,7 +66,7 @@ export default async function handler(req, res) {
 
   const url = `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/contents/${filename}`;
 
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -55,5 +78,10 @@ export default async function handler(req, res) {
     }),
   });
 
-  res.status(200).json({ received: true });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`GitHub API error: ${text}`);
+  }
+
+  console.log("Payload stored:", filename);
 }
