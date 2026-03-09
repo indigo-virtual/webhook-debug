@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Logs & debug
+*.log
+npm-debug.log*
+.npm
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Optional: local build/cache
+.next/
+dist/
+build/
+.cache/
