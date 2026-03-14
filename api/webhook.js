@@ -1,27 +1,56 @@
 import crypto from "crypto";
 
+// Require raw body for HMAC verification (sender signs exact bytes received).
+export const config = { api: { bodyParser: false } };
+
+function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
+
 export default async function handler(req, res) {
-  const payload = req.body;
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const rawBody = await getRawBody(req);
+  let payload;
+  try {
+    payload = JSON.parse(rawBody);
+  } catch (e) {
+    console.error("Invalid JSON body:", e.message);
+    return res.status(400).json({ error: "Invalid JSON" });
+  }
 
   const secret = process.env.WEBHOOK_SECRET;
   const signature = req.headers["x-vamsys-signature"];
 
   console.log("===== WEBHOOK RECEIVED =====");
+  console.log("event:", payload.event, "event_id:", payload.event_id);
   console.log(JSON.stringify(payload, null, 2));
 
   /*
   --------------------------------
   VERIFY SIGNATURE
   --------------------------------
+  Must use the raw body (exact bytes sent). Re-serializing parsed JSON
+  can change key order/whitespace and break HMAC verification.
   */
 
   if (secret && signature) {
     const expected = crypto
       .createHmac("sha256", secret)
-      .update(JSON.stringify(payload))
+      .update(rawBody, "utf8")
       .digest("hex");
 
-    if (signature !== expected) {
+    // Some senders use "sha256=hexdigest" format
+    const receivedSig = signature.replace(/^sha256=/, "");
+
+    if (receivedSig !== expected) {
       console.log("Invalid signature");
       return res.status(401).json({ error: "Invalid signature" });
     }
