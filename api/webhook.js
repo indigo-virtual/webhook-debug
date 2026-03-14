@@ -32,7 +32,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const rawBody = await getRawBody(req);
+  let rawBody;
+  try {
+    rawBody = await getRawBody(req);
+  } catch (e) {
+    console.error("Failed to read request body:", e.message);
+    return res.status(500).json({ error: "Failed to read body" });
+  }
+
   let payload;
   try {
     payload = JSON.parse(rawBody);
@@ -71,6 +78,11 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error: "Server misconfiguration",
       message: "WEBHOOK_SECRET not set",
+    });
+  } else if (secret && !signature) {
+    return res.status(401).json({
+      error: "Missing signature",
+      message: "X-vAMSYS-Signature header required",
     });
   }
 
