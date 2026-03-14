@@ -5,7 +5,7 @@ import crypto from "crypto";
  *
  * Implements vAMSYS webhook requirements:
  * - HMAC-SHA256 verification (X-vAMSYS-Signature); never expose WEBHOOK_SECRET client-side.
- * - Respond with 2xx within 3 seconds; process asynchronously after responding.
+ * - Respond with 2xx after saving (within 3s in normal conditions).
  * - Idempotency: use event_id to avoid duplicate processing on retries.
  * - HTTPS only (enforced by deployment).
  */
@@ -86,10 +86,6 @@ export default async function handler(req, res) {
     });
   }
 
-  // Respond immediately to avoid timeout (vAMSYS requires response within 3s)
-  res.status(200).json({ received: true });
-
-  // --- Async processing after response (queue-style) ---
   console.log("===== WEBHOOK RECEIVED =====");
   console.log("event:", payload.event, "event_id:", payload.event_id);
   console.log(JSON.stringify(payload, null, 2));
@@ -103,54 +99,50 @@ export default async function handler(req, res) {
   const repo = process.env.GITHUB_REPO;
   const token = process.env.GITHUB_TOKEN;
 
-  if (!owner || !repo || !token) {
+  if (owner && repo && token) {
+    try {
+      const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents`;
+      const getRes = await fetch(`${baseUrl}/${filename}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Idempotency: skip if we already stored this event_id (handles retries)
+      if (getRes.ok) {
+        console.log("Already stored (idempotent skip):", filename);
+      } else if (getRes.status === 404) {
+        const putRes = await fetch(`${baseUrl}/${filename}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: `Webhook ${payload.event} ${eventId}`,
+            content,
+          }),
+        });
+
+        const result = await putRes.text();
+        console.log("GitHub API response:", putRes.status, result);
+
+        if (!putRes.ok) {
+          console.error("Failed to store payload:", result);
+        } else {
+          console.log("Payload stored:", filename);
+        }
+      } else {
+        const text = await getRes.text();
+        console.error("GitHub GET failed:", getRes.status, text);
+      }
+    } catch (error) {
+      console.error("Failed to store payload:", error);
+    }
+  } else {
     console.error("GitHub env missing (GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN)");
-    console.log("============================");
-    return;
-  }
-
-  try {
-    const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents`;
-    const getRes = await fetch(`${baseUrl}/${filename}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    // Idempotency: skip if we already stored this event_id (handles retries)
-    if (getRes.ok) {
-      console.log("Already stored (idempotent skip):", filename);
-      console.log("============================");
-      return;
-    }
-
-    if (getRes.status !== 404) {
-      const text = await getRes.text();
-      console.error("GitHub GET failed:", getRes.status, text);
-      console.log("============================");
-      return;
-    }
-
-    const putRes = await fetch(`${baseUrl}/${filename}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Webhook ${payload.event} ${eventId}`,
-        content,
-      }),
-    });
-
-    const result = await putRes.text();
-    console.log("GitHub API response:", putRes.status, result);
-
-    if (!putRes.ok) {
-      throw new Error(result);
-    }
-    console.log("Payload stored:", filename);
-  } catch (error) {
-    console.error("Failed to store payload:", error);
   }
 
   console.log("============================");
+
+  // Respond after save so serverless doesn't terminate before GitHub write
+  res.status(200).json({ received: true });
 }
