@@ -1,0 +1,27 @@
+{
+  "event": "rank.updated",
+  "event_id": "evt_uvcg63DbFlw2DtG31dsv",
+  "timestamp": "2026-03-16T07:59:05+00:00",
+  "airline_id": 706,
+  "data": {
+    "id": 24074,
+    "level": 6,
+    "name": "Captain",
+    "abbreviation": "CAPT",
+    "description": null,
+    "image": "https://cdn.vamsys.xyz/rank_icons/01KKB8D136JSE3055P5HEW5AXD.png",
+    "honorary_rank": false,
+    "hours": 600,
+    "points": 30000,
+    "bonus": 0,
+    "pireps": 100,
+    "show_abbreviation": true,
+    "abbreviation_position": "end",
+    "abbreviation_separator": ", ",
+    "airline_id": 706,
+    "regular_pilots_count": null,
+    "honorary_pilots_count": null,
+    "created_at": "2025-07-24T11:58:13+00:00",
+    "updated_at": "2026-03-16T07:59:05+00:00"
+  }
+}
