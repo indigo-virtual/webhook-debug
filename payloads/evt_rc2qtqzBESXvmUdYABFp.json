@@ -1,0 +1,31 @@
+{
+  "event": "rank.changed",
+  "event_id": "evt_rc2qtqzBESXvmUdYABFp",
+  "timestamp": "2026-03-22T13:29:49+00:00",
+  "airline_id": 706,
+  "data": {
+    "id": 225766,
+    "airline_id": 706,
+    "user_id": 59864,
+    "username": "IGO0251",
+    "name": "Minhaj",
+    "discord_id": "501053054112497676",
+    "rank_id": 6997,
+    "honorary_rank_id": null,
+    "prefer_honorary_rank": true,
+    "hub_id": null,
+    "location_id": 151892,
+    "permanent_remove": false,
+    "frozen_date": null,
+    "airline_ban": false,
+    "platform_ban": false,
+    "holiday_allowance": null,
+    "under_activity_grace": null,
+    "activity_grace_since": null,
+    "activity_whitelist": null,
+    "activity_type": null,
+    "created_at": "2023-07-27T17:26:24+00:00",
+    "deleted_at": null,
+    "statistics": null
+  }
+}
