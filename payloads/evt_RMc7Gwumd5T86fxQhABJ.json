@@ -1,0 +1,31 @@
+{
+  "event": "rank.changed",
+  "event_id": "evt_RMc7Gwumd5T86fxQhABJ",
+  "timestamp": "2026-03-24T14:52:45+00:00",
+  "airline_id": 706,
+  "data": {
+    "id": 472274,
+    "airline_id": 706,
+    "user_id": 100285,
+    "username": "IGO1170",
+    "name": "Dinesh",
+    "discord_id": null,
+    "rank_id": 25395,
+    "honorary_rank_id": null,
+    "prefer_honorary_rank": true,
+    "hub_id": 649,
+    "location_id": 151836,
+    "permanent_remove": false,
+    "frozen_date": null,
+    "airline_ban": false,
+    "platform_ban": false,
+    "holiday_allowance": null,
+    "under_activity_grace": null,
+    "activity_grace_since": null,
+    "activity_whitelist": null,
+    "activity_type": null,
+    "created_at": "2026-02-20T05:50:19+00:00",
+    "deleted_at": null,
+    "statistics": null
+  }
+}
