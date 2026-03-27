@@ -1,0 +1,31 @@
+{
+  "event": "rank.changed",
+  "event_id": "evt_h9hFWbMLqZ35dXYxcpHN",
+  "timestamp": "2026-03-27T13:36:53+00:00",
+  "airline_id": 706,
+  "data": {
+    "id": 458758,
+    "airline_id": 706,
+    "user_id": 98163,
+    "username": "IGO1116",
+    "name": "Ashfan Ahmed Karkal",
+    "discord_id": "1450832347153961023",
+    "rank_id": 6996,
+    "honorary_rank_id": null,
+    "prefer_honorary_rank": true,
+    "hub_id": 648,
+    "location_id": 151836,
+    "permanent_remove": false,
+    "frozen_date": null,
+    "airline_ban": false,
+    "platform_ban": false,
+    "holiday_allowance": null,
+    "under_activity_grace": null,
+    "activity_grace_since": null,
+    "activity_whitelist": null,
+    "activity_type": null,
+    "created_at": "2026-01-10T17:52:25+00:00",
+    "deleted_at": null,
+    "statistics": null
+  }
+}
