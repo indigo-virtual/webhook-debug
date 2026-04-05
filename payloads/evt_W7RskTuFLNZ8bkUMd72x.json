@@ -1,0 +1,31 @@
+{
+  "event": "rank.changed",
+  "event_id": "evt_W7RskTuFLNZ8bkUMd72x",
+  "timestamp": "2026-04-05T07:56:14+00:00",
+  "airline_id": 706,
+  "data": {
+    "id": 245400,
+    "airline_id": 706,
+    "user_id": 67842,
+    "username": "IGO0299",
+    "name": "Amarjeet Nongthombam",
+    "discord_id": null,
+    "rank_id": 6997,
+    "honorary_rank_id": null,
+    "prefer_honorary_rank": true,
+    "hub_id": null,
+    "location_id": 151847,
+    "permanent_remove": false,
+    "frozen_date": null,
+    "airline_ban": false,
+    "platform_ban": false,
+    "holiday_allowance": null,
+    "under_activity_grace": null,
+    "activity_grace_since": null,
+    "activity_whitelist": null,
+    "activity_type": null,
+    "created_at": "2023-10-22T13:48:01+00:00",
+    "deleted_at": null,
+    "statistics": null
+  }
+}
